@@ -1,0 +1,19 @@
+[Unit]
+Description=LightRAG Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ailab
+WorkingDirectory=/home/ailab/api-lightrag
+Environment="PATH=/home/ailab/venv/api-lightrag/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+EnvironmentFile=/home/ailab/api-lightrag/.env
+ExecStart=/home/ailab/venv/api-lightrag/bin/lightrag-gunicorn --workers ${WORKERS:-1} --host ${HOST:-0.0.0.0} --port ${PORT:-9621}
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
