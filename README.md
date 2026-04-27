@@ -156,6 +156,24 @@ EMBEDDING_BATCH_NUM=10
 
 Puis augmente seulement si ton backend LLM tient la concurrence.
 
+## Reranking et parallélisme
+
+Dans ce template, il n’y a **pas** de variable dédiée du type `RERANK_MAX_ASYNC`.
+
+Le reranking suit donc la concurrence globale côté requêtes, pilotée surtout par :
+
+```bash
+MAX_ASYNC=4
+```
+
+Si tu observes “4 en parallèle”, c’est généralement cette limite qui s’applique.
+
+En pratique :
+
+- augmente `MAX_ASYNC` pour autoriser plus de requêtes simultanées (et donc potentiellement plus de rerank en vol) ;
+- vérifie que ton backend de rerank (Cohere, FastAPI custom, etc.) supporte la charge ;
+- garde un œil sur latence/timeouts avant de monter trop haut.
+
 ## Reset index
 
 Attention : supprime l’index local.
