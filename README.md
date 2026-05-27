@@ -70,6 +70,14 @@ Puis vérifier la cohérence :
 - `EMBEDDING_BINDING_HOST` pointe bien vers le serveur d'embeddings (pas le serveur LLM)
 - `EMBEDDING_DIM` correspond à la dimension réellement renvoyée par le backend
 
+⚠️ Si tu passes de `1024` (ex: `bge-m3`) à `3584` (ex: `bge-multilingual-gemma2`) **sur un index existant**, LightRAG/NanoVectorDB peut échouer au démarrage avec :
+
+```text
+AssertionError: Embedding dim mismatch, expected: 3584, but loaded: 1024
+```
+
+Dans ce cas, il faut **recréer l'index vectoriel** (ou utiliser un `WORKING_DIR` neuf) avant de relancer.
+
 ## Run
 
 ```bash
@@ -197,6 +205,8 @@ systemctl stop lightrag || true
 rm -rf rag_storage/*
 rm -rf inputs/*
 ```
+
+Cas typique : changement de modèle d'embeddings avec dimension différente (`1024 -> 3584` ou inversement).
 
 Redémarrer ensuite :
 
