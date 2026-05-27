@@ -56,6 +56,20 @@ EMBEDDING_MODEL=...
 EMBEDDING_DIM=...
 ```
 
+Pour `BAAI/bge-multilingual-gemma2` (endpoint OpenAI-compatible), utiliser en général :
+
+```bash
+EMBEDDING_MODEL=BAAI/bge-multilingual-gemma2
+EMBEDDING_DIM=3584
+EMBEDDING_TOKEN_LIMIT=8192
+```
+
+Puis vérifier la cohérence :
+
+- `EMBEDDING_BINDING=openai`
+- `EMBEDDING_BINDING_HOST` pointe bien vers le serveur d'embeddings (pas le serveur LLM)
+- `EMBEDDING_DIM` correspond à la dimension réellement renvoyée par le backend
+
 ## Run
 
 ```bash
