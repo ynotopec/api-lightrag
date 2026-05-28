@@ -53,22 +53,25 @@ LLM_MODEL=...
 EMBEDDING_BINDING_HOST=...
 EMBEDDING_BINDING_API_KEY=...
 EMBEDDING_MODEL=...
-EMBEDDING_DIM=...
+# EMBEDDING_DIM=...   # optionnel (override expert)
 ```
 
 Pour `BAAI/bge-multilingual-gemma2` (endpoint OpenAI-compatible), utiliser en général :
 
 ```bash
 EMBEDDING_MODEL=BAAI/bge-multilingual-gemma2
-EMBEDDING_DIM=3584
+# EMBEDDING_DIM=3584  # optionnel ; tu peux le laisser absent
 EMBEDDING_TOKEN_LIMIT=8192
 ```
+
+Par défaut, ce template recommande une config simplifiée : **définir le modèle d'embedding et laisser la dimension implicite**.
+N'ajoute `EMBEDDING_DIM` que si tu veux forcer un override explicite ou diagnostiquer un backend particulier.
 
 Puis vérifier la cohérence :
 
 - `EMBEDDING_BINDING=openai`
 - `EMBEDDING_BINDING_HOST` pointe bien vers le serveur d'embeddings (pas le serveur LLM)
-- `EMBEDDING_DIM` correspond à la dimension réellement renvoyée par le backend
+- si `EMBEDDING_DIM` est défini, il doit correspondre à la dimension réellement renvoyée par le backend
 
 ⚠️ Si tu passes de `1024` (ex: `bge-m3`) à `3584` (ex: `bge-multilingual-gemma2`) **sur un index existant**, LightRAG/NanoVectorDB peut échouer au démarrage avec :
 
@@ -76,7 +79,13 @@ Puis vérifier la cohérence :
 AssertionError: Embedding dim mismatch, expected: 3584, but loaded: 1024
 ```
 
-Dans ce cas, il faut **recréer l'index vectoriel** (ou utiliser un `WORKING_DIR` neuf) avant de relancer.
+Ce template gère désormais ce cas automatiquement au démarrage via `run.sh` :
+
+- il calcule une empreinte embedding (`EMBEDDING_BINDING`, `EMBEDDING_BINDING_HOST`, `EMBEDDING_MODEL`, `EMBEDDING_DIM`) ;
+- si l'empreinte change, il purge `WORKING_DIR` puis reconstruit l'index ;
+- comportement piloté par `AUTO_RESET_ON_EMBEDDING_CHANGE=true` (désactivable).
+
+Si tu préfères une migration manuelle, mets `AUTO_RESET_ON_EMBEDDING_CHANGE=false`, puis recrée l'index toi-même (ou utilise un `WORKING_DIR` neuf) avant de relancer.
 
 ## Run
 

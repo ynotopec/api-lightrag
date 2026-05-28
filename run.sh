@@ -38,6 +38,25 @@ export INPUT_DIR="${INPUT_DIR:-$PROJECT_DIR/inputs}"
 export WORKING_DIR="${WORKING_DIR:-$PROJECT_DIR/rag_storage}"
 
 MODE="${LIGHTRAG_RUN_MODE:-server}"
+AUTO_RESET_ON_EMBEDDING_CHANGE="${AUTO_RESET_ON_EMBEDDING_CHANGE:-true}"
+EMBEDDING_FINGERPRINT_FILE="${WORKING_DIR}/.embedding_fingerprint"
+
+current_embedding_fingerprint="${EMBEDDING_BINDING:-}|${EMBEDDING_BINDING_HOST:-}|${EMBEDDING_MODEL:-}|${EMBEDDING_DIM:-auto}"
+
+if [[ "${AUTO_RESET_ON_EMBEDDING_CHANGE,,}" == "true" ]]; then
+  if [[ -f "$EMBEDDING_FINGERPRINT_FILE" ]]; then
+    previous_embedding_fingerprint="$(<"$EMBEDDING_FINGERPRINT_FILE")"
+    if [[ "$previous_embedding_fingerprint" != "$current_embedding_fingerprint" ]]; then
+      echo "Embedding config changed."
+      echo "Previous: $previous_embedding_fingerprint"
+      echo "Current : $current_embedding_fingerprint"
+      echo "Auto-reset enabled -> recreating working index in: $WORKING_DIR"
+      find "$WORKING_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+    fi
+  fi
+fi
+
+printf '%s\n' "$current_embedding_fingerprint" > "$EMBEDDING_FINGERPRINT_FILE"
 
 echo "Starting LightRAG on ${HOST}:${PORT}"
 echo "Working dir: $WORKING_DIR"
